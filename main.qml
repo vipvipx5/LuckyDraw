@@ -185,6 +185,12 @@ Window {
                 radius: 4
                 opacity: 0.5
             }
+            MouseArea{
+                anchors.fill: parent
+                onDoubleClicked: {
+                    lastPrizeItemModel.removePrize(code)
+                }
+            }
         }
         columnWidthProvider: function (column) {
             var column_count = lastPrizeItemModel.columnCount()
@@ -259,12 +265,7 @@ Window {
                 repeat_count = 0
                 interval = 5000
                 if(!timer_stop_thousand.running && picking_player !== null){
-                    display_text.text = picking_player.code + ". "+ picking_player.name
-                    happy_screen.visible = true
-                    happy_screen_animation.restart()
-                    lastPrizeItemModel.addPrize(picking_player)
-                    btn_pick.checked = false
-                    btn_pick.enabled = true
+                    timer_show_happy_screen.start()
                 }
             } else {
                 scrollTumblerint(1, interval)
@@ -293,13 +294,7 @@ Window {
                 repeat_count = 0
                 interval = 6000
                 if(!timer_stop_hundred.running && picking_player !== null){
-                    display_text.text = picking_player.code + ". "+ picking_player.name
-                    happy_screen.visible = true
-                    happy_screen_animation.restart()
-                    lastPrizeItemModel.addPrize(picking_player)
-                    btn_pick.checked = false
-                    btn_pick.enabled = true
-
+                    timer_show_happy_screen.start()
                 }
             } else {
                 scrollTumblerint(0, interval)
@@ -318,6 +313,24 @@ Window {
             if(picking_player !== null){
                 lastPrizeItemModel.addPrize(picking_player)
                 btn_pick.enabled = true
+            }
+        }
+    }
+
+    Timer{
+        id: timer_show_happy_screen
+        interval: 1000
+        running: false
+        repeat: false
+        onTriggered: {
+            if(picking_player !== null) {
+                display_text.text = picking_player.code + ". "+ picking_player.name
+                happy_screen.visible = true
+                happy_screen_animation.restart()
+                lastPrizeItemModel.addPrize(picking_player)
+                btn_pick.checked = false
+                btn_pick.enabled = true
+
             }
         }
     }

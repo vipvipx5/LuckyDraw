@@ -34,6 +34,22 @@ void LastPrizeItemModel::removeLastPrize()
     endResetModel();
 }
 
+void LastPrizeItemModel::removePrize(QString code)
+{
+    int icode = code.toInt();
+     beginResetModel();
+     for(int i= 0; i<m_displayList.count(); i++)
+     {
+         Player* player = m_displayList[i];
+         if(player != NULL && player->code() == icode){
+             m_displayList.removeAt(i);
+             break;
+         }
+     }
+     endResetModel();
+}
+
+
 int LastPrizeItemModel::rowCount(const QModelIndex &parent) const
 {
     int count = m_displayList.count();

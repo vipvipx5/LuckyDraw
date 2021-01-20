@@ -18,6 +18,7 @@ public:
     Q_INVOKABLE void addPrize(Player* player);
     Q_INVOKABLE void resetPrize();
     Q_INVOKABLE void removeLastPrize();
+    Q_INVOKABLE void removePrize(QString code);
 
     // QAbstractItemModel interface
 public:
