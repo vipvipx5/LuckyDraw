@@ -12,7 +12,7 @@ Window {
     width: 1024
     height: 768
     title: qsTr("TSDV lucky draw")
-    visibility: Window.FullScreen
+    visibility: Window.Maximized
 
     property Player picking_player: null
 
@@ -34,6 +34,7 @@ Window {
         source: "qrc:/fonts/OpenSans-Regular.ttf"
      }
 
+
     Tumbler {
         id: tumbler
         anchors.top: title.bottom
@@ -49,46 +50,52 @@ Window {
             visible: false
             text: "M"
         }
+
+        Component {
+            id: tumbler_delegate
+            Label {
+                text: styleData.value
+                opacity: 0.4 + Math.max(0, 1 - Math.abs(styleData.displacement)) * 0.6
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                font.pixelSize: textSingleton.font.pixelSize * 3
+            }
+        }
+        ListModel {
+            id: tumbler_model
+            Component.onCompleted: {
+                for (var i = 0; i < 10; ++i) {
+                    append({value: i.toString()});
+                }
+            }
+        }
+
         readonly property real delegateTextMargins: characterMetrics.width * 1.5
         TumblerColumn {
             id: thousan_column
             width: characterMetrics.width + tumbler.delegateTextMargins *2
-            model: ListModel {
-                Component.onCompleted: {
-                    for (var i = 0; i < 10; ++i) {
-                        append({value: i.toString()});
-                    }
-                }
-            }
-
+            model: tumbler_model
+            delegate: tumbler_delegate
         }
         TumblerColumn {
             id: hundred_column
             width: characterMetrics.width + tumbler.delegateTextMargins *2
-            model: ListModel {
-                Component.onCompleted: {
-                    for (var i = 0; i < 10; ++i) {
-                        append({value: i.toString()});
-                    }
-                }
-            }
+            model: tumbler_model
+            delegate: tumbler_delegate
         }
+
         TumblerColumn {
             id: ten_column
             width: characterMetrics.width + tumbler.delegateTextMargins *2
-            model: ListModel {
-                Component.onCompleted: {
-                    for (var i = 0; i < 10; ++i) {
-                        append({value: i.toString()});
-                    }
-                }
-            }
+            model: tumbler_model
+            delegate: tumbler_delegate
         }
     }
 
     Button {
         id: btn_pick
-        text: "Pick a lucky member"
+        checkable: true
+        text: checked? "STOP" : "Pick a lucky member"
         anchors.top: tumbler.bottom
         anchors.margins: 30
         anchors.horizontalCenter: parent.horizontalCenter
@@ -100,21 +107,46 @@ Window {
             border.width: 0
             radius: 20
         }
-        onClicked: {
-            picking_player = playerManager.randomPrize(0)
+        onToggled: {
+            if(checked) {
+                picking_player = playerManager.randomPrize(0)
 
-            timer_ten.start()
-            timer_hundred.start()
-            timer_thousand.start()
+                timer_ten.start()
+                timer_hundred.start()
+                timer_thousand.start()
 
-            timer_stop_ten.target_index = picking_player.code % 10
-            timer_stop_ten.restart()
+                timer_stop_ten.target_index = picking_player.code % 10
+                timer_stop_ten.restart()
 
-            timer_stop_hundred.target_index = (picking_player.code/10)%10
-            timer_stop_hundred.restart()
+                timer_stop_hundred.target_index = (picking_player.code/10)%10
+                timer_stop_hundred.restart()
 
-            timer_stop_thousand.target_index =  (picking_player.code/100)%10
-            timer_stop_thousand.restart()
+                timer_stop_thousand.target_index =  (picking_player.code/100)%10
+                timer_stop_thousand.restart()
+            } else {
+                btn_pick.enabled = false
+                timer_ten.stop()
+                timer_hundred.stop()
+                timer_thousand.stop()
+
+                timer_stop_ten.stop()
+                tumbler.setCurrentIndexAt(2, 0, 0)
+                tumbler.setCurrentIndexAt(2, timer_stop_ten.target_index, 2500)
+
+                timer_stop_hundred.stop()
+                timer_stop_hundred.repeat_count = 0
+                timer_stop_hundred.interval = 5000
+                tumbler.setCurrentIndexAt(1, 0, 0)
+                tumbler.setCurrentIndexAt(1, timer_stop_hundred.target_index, 2500)
+
+                timer_stop_thousand.stop()
+                timer_stop_thousand.repeat_count = 0
+                timer_stop_thousand.interval = 6000
+                tumbler.setCurrentIndexAt(0, 0, 0)
+                tumbler.setCurrentIndexAt(0, timer_stop_thousand.target_index, 2500)
+
+                timer_stop_all.start();
+            }
         }
     }
 
@@ -266,6 +298,19 @@ Window {
         }
     }
 
+    Timer{
+        id: timer_stop_all
+        interval: 3000
+        running: false
+        repeat: false
+
+        onTriggered: {
+            if(picking_player !== null){
+                lastPrizeItemModel.addPrize(picking_player)
+                btn_pick.enabled = true
+            }
+        }
+    }
 
     Rectangle {
         id: happy_screen
