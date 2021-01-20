@@ -41,6 +41,9 @@ Player *PlayerManager::getLastPrizeListItem(int iIndex)
 
 Player *PlayerManager::randomPrize(int iPrizeId)
 {
+    if(m_playerList.count() == 0){
+        return NULL;
+    }
     int index = QRandomGenerator::global()->bounded(m_playerList.count());
     Player* p = m_playerList.takeAt(index);
     return p;

@@ -24,15 +24,15 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
 
 protected:
     QHash<int, QByteArray> roleNames() const;
 
 signals:
-
-
 private:
     QList<Player*> m_displayList;
+
 };
 
 #endif // LASTPRIZEITEMMODEL_H

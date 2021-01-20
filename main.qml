@@ -9,19 +9,18 @@ import Player 1.0
 
 Window {
     visible: true
-    width: 1024
-    height: 768
     title: qsTr("TSDV lucky draw")
-    visibility: Window.Maximized
+    //flags: Qt.FramelessWindowHint
+    x: 0
+    y: - 1
+    width: Screen.width
+    height: Screen.height + 1
     property Player picking_player: null
-
     Image {
-            id: background_image
-            anchors.fill: parent
-            width: 32
-            height: 32
-            source: "qrc:/image/background.png"
-        }
+        id: background_image
+        anchors.fill: parent
+        source: "qrc:/image/background.png"
+    }
     Text {
         id: title
         anchors.top: parent.top
@@ -33,6 +32,7 @@ Window {
         color: "white"
         text: "TSDV YEAR END LUCKY DRAW"
     }
+
     Text {
         id: textSingleton
     }
@@ -40,7 +40,7 @@ Window {
     FontLoader {
         id: openSans
         source: "qrc:/fonts/OpenSans-Regular.ttf"
-     }
+    }
 
 
     Tumbler {
@@ -111,7 +111,7 @@ Window {
         background: Rectangle {
             implicitHeight: 100
             implicitWidth: 500
-            color: btn_pick.down ? "#84f75e" : "#c4f4b4"
+            color: btn_pick.checked ? "#FF857D" : "#84f75e"
             border.width: 0
             radius: 20
         }
@@ -158,26 +158,38 @@ Window {
         }
     }
 
-    GridView {
-        cellWidth: parent.width/3.5
+    TableView {
+        id: result_table
+        columnSpacing: 20
+        rowSpacing: 20
+        clip: true
         anchors.top: btn_pick.bottom
         anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.margins: 20
-
+        anchors.left: background_image.left
+        anchors.right: background_image.right
+        anchors.topMargin: 20
+        anchors.leftMargin: 140
+        anchors.rightMargin: 140
         model: lastPrizeItemModel
+
         delegate:
             Label  {
-            font.pixelSize: textSingleton.font.pixelSize * 2.5
+            font.pixelSize: textSingleton.font.pixelSize *(4.5 - lastPrizeItemModel.columnCount() )
             font.family: openSans.name
             color: "white"
-            text: "   " + code + ". " + name + "   ";
+            horizontalAlignment: Text.AlignHCenter
+            text:  code? "   " + code + ". " + name + "   " : "";
+            visible: code? true : false
             background: Rectangle {
                 color: "#808080"
                 radius: 4
                 opacity: 0.5
             }
+        }
+        columnWidthProvider: function (column) {
+            var column_count = lastPrizeItemModel.columnCount()
+            var column_width = result_table.width/column_count
+            return column_width
         }
     }
 
@@ -310,6 +322,41 @@ Window {
         }
     }
 
+    Button {
+        id: btn_ignore
+        text: "Ignore this turn"
+        anchors.right: parent.right
+        anchors.bottom: btn_next.top
+        anchors.rightMargin: 20
+        anchors.bottomMargin: 10
+        background: Rectangle {
+            color: btn_ignore.down ? "#FF5E5E" : "#FFB7B7"
+            radius: 4
+            opacity: 0.5
+        }
+        font.pixelSize: textSingleton.font.pixelSize * 1.5
+        onClicked: {
+            lastPrizeItemModel.removeLastPrize()
+        }
+    }
+    Button {
+        id: btn_next
+        text: "Next round"
+        width: btn_ignore.width
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.rightMargin: 20
+        anchors.bottomMargin: 20
+        background: Rectangle {
+            color: btn_next.down ? "#FF5E5E" : "#FFB7B7"
+            radius: 4
+            opacity: 0.5
+        }
+        font.pixelSize: textSingleton.font.pixelSize * 1.5
+        onClicked: {
+            lastPrizeItemModel.resetPrize()
+        }
+    }
     Rectangle {
         id: happy_screen
         anchors.fill: parent
@@ -324,9 +371,8 @@ Window {
                 anchors.centerIn: parent
                 color: "white"
                 text: "display_text"
-                font.pixelSize: 48
+                font.pixelSize: 64
 
-    //! [letterspacing]
                 SequentialAnimation on font.letterSpacing {
                     id: happy_screen_animation
                     loops: 1;
@@ -344,31 +390,6 @@ Window {
                 }
 
             }
-        }
-    }
-    Button {
-        id: btn_ignore
-        text: "Ignore this turn"
-        anchors.right: parent.right
-        anchors.bottom: btn_next.top
-        anchors.rightMargin: 20
-        anchors.bottomMargin: 10
-        font.pixelSize: textSingleton.font.pixelSize * 1.5
-        onClicked: {
-            lastPrizeItemModel.removeLastPrize()
-        }
-    }
-    Button {
-        id: btn_next
-        text: "Next round"
-        width: btn_ignore.width
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        anchors.rightMargin: 20
-        anchors.bottomMargin: 20
-        font.pixelSize: textSingleton.font.pixelSize * 1.5
-        onClicked: {
-            lastPrizeItemModel.resetPrize()
         }
     }
 }

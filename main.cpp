@@ -14,7 +14,6 @@ int main(int argc, char *argv[])
     qmlRegisterType<PlayerManager>("PlayerManager", 1, 0, "PlayerManager");
     qmlRegisterType<Player>("Player", 1, 0, "Player");
 
-
     LastPrizeItemModel lastPrizeItemModel;
     QList<Player*> listPlayer = CsvReader::LoadPlayerList("list.csv");
     PlayerManager playerManager(listPlayer);
