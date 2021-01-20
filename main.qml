@@ -13,16 +13,24 @@ Window {
     height: 768
     title: qsTr("TSDV lucky draw")
     visibility: Window.Maximized
-
     property Player picking_player: null
 
+    Image {
+            id: background_image
+            anchors.fill: parent
+            width: 32
+            height: 32
+            source: "qrc:/image/background.png"
+        }
     Text {
         id: title
         anchors.top: parent.top
         anchors.topMargin: 20
         anchors.horizontalCenter: parent.horizontalCenter
-        font.pixelSize: textSingleton.font.pixelSize * 3
+        font.pixelSize: textSingleton.font.pixelSize * 4
         font.family: openSans.name
+        font.bold: true
+        color: "white"
         text: "TSDV YEAR END LUCKY DRAW"
     }
     Text {
@@ -150,42 +158,26 @@ Window {
         }
     }
 
-    Button {
-        id: btn_ignore
-        text: "Ignore this turn"
-        anchors.right: parent.right
-        anchors.top: btn_pick.top
-        anchors.rightMargin: 20
-        font.pixelSize: textSingleton.font.pixelSize * 1.5
-        onClicked: {
-            lastPrizeItemModel.removeLastPrize()
-        }
-    }
-    Button {
-        id: btn_next
-        text: "Next round"
-        width: btn_ignore.width
-        anchors.right: parent.right
-        anchors.bottom: btn_pick.bottom
-        anchors.rightMargin: 20
-        font.pixelSize: textSingleton.font.pixelSize * 1.5
-        onClicked: {
-            lastPrizeItemModel.resetPrize()
-        }
-    }
     GridView {
         cellWidth: parent.width/3.5
-        anchors.top: btn_next.bottom
+        anchors.top: btn_pick.bottom
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.margins: 20
 
         model: lastPrizeItemModel
-        delegate: Text {
-            font.pixelSize: textSingleton.font.pixelSize * 2
+        delegate:
+            Label  {
+            font.pixelSize: textSingleton.font.pixelSize * 2.5
             font.family: openSans.name
-            text: "   " + code + ". " + name;
+            color: "white"
+            text: "   " + code + ". " + name + "   ";
+            background: Rectangle {
+                color: "#808080"
+                radius: 4
+                opacity: 0.5
+            }
         }
     }
 
@@ -247,6 +239,7 @@ Window {
                 timer_hundred.stop()
                 tumbler.setCurrentIndexAt(1, 0, 0)
                 interval = timer_hundred.interval
+                btn_pick.enabled = false
             }
             interval += 200
             if(tumbler.currentIndexAt(1) === target_index){
@@ -258,6 +251,8 @@ Window {
                     happy_screen.visible = true
                     happy_screen_animation.restart()
                     lastPrizeItemModel.addPrize(picking_player)
+                    btn_pick.checked = false
+                    btn_pick.enabled = true
                 }
             } else {
                 scrollTumblerint(1, interval)
@@ -290,6 +285,9 @@ Window {
                     happy_screen.visible = true
                     happy_screen_animation.restart()
                     lastPrizeItemModel.addPrize(picking_player)
+                    btn_pick.checked = false
+                    btn_pick.enabled = true
+
                 }
             } else {
                 scrollTumblerint(0, interval)
@@ -346,6 +344,31 @@ Window {
                 }
 
             }
+        }
+    }
+    Button {
+        id: btn_ignore
+        text: "Ignore this turn"
+        anchors.right: parent.right
+        anchors.bottom: btn_next.top
+        anchors.rightMargin: 20
+        anchors.bottomMargin: 10
+        font.pixelSize: textSingleton.font.pixelSize * 1.5
+        onClicked: {
+            lastPrizeItemModel.removeLastPrize()
+        }
+    }
+    Button {
+        id: btn_next
+        text: "Next round"
+        width: btn_ignore.width
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.rightMargin: 20
+        anchors.bottomMargin: 20
+        font.pixelSize: textSingleton.font.pixelSize * 1.5
+        onClicked: {
+            lastPrizeItemModel.resetPrize()
         }
     }
 }

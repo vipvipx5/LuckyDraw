@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>fonts/OpenSans-Regular.ttf</file>
+        <file>image/background.png</file>
     </qresource>
 </RCC>
