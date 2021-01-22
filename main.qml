@@ -11,10 +11,13 @@ Window {
     visible: true
     title: qsTr("TSDV lucky draw")
     //flags: Qt.FramelessWindowHint
-    x: 0
-    y: - 1
-    width: Screen.width
-    height: Screen.height + 1
+    //x: 0
+    //y: - 1
+    //width: Screen.width
+    //height: Screen.height + 1
+    width: 1024
+    height: 768
+    visibility: Window.Maximized
     property Player picking_player: null
     Image {
         id: background_image
