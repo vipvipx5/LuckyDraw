@@ -17,7 +17,8 @@ public:
     int getLastPrizeListCount();
     Player* getLastPrizeListItem(int iIndex);
 
-    Q_INVOKABLE Player* randomPrize(int iPrizeId);
+    Q_INVOKABLE Player* randomPrize();
+    Q_INVOKABLE bool isEmpty();
 
 signals:
 

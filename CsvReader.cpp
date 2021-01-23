@@ -9,6 +9,9 @@ QList<Player *> CsvReader::LoadPlayerList(QString filePath)
 {
     QList<Player*> ret;
     QFile file(filePath);
+    if(!file.exists()){
+        return ret;
+    }
     file.open(QIODevice::ReadOnly);
     QTextStream in(&file);
     in.setCodec("UTF-8");

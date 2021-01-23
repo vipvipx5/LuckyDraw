@@ -4,13 +4,14 @@ import QtQuick.Controls 2.12
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Extras 1.4
 import QtQuick.Layouts 1.12
+import QtQuick.Dialogs 1.3
 import PlayerManager 1.0
 import Player 1.0
 
 Window {
     visible: true
-    title: qsTr("TSDV lucky draw")
-    //flags: Qt.FramelessWindowHint
+    title: qsTr("Lucky draw")
+    flags: Qt.Window | Qt.FramelessWindowHint
     //x: 0
     //y: - 1
     //width: Screen.width
@@ -19,6 +20,38 @@ Window {
     height: 768
     visibility: Window.Maximized
     property Player picking_player: null
+
+    Component.onCompleted: {
+        if(playerManager.isEmpty()) {
+            messageDialog.open()
+        }
+    }
+    onWidthChanged: {
+        result_table.forceLayout();
+    }
+
+    Shortcut {
+        sequence: StandardKey.FullScreen
+        onActivated: {
+            if(flags == Qt.Window){
+                flags = Qt.Window | Qt.FramelessWindowHint
+                visibility = Window.Maximized
+            } else {
+                flags = Qt.Window
+                visibility = Window.Maximized
+            }
+        }
+    }
+
+    MessageDialog {
+        id: messageDialog
+        title: "Lỗi: Dữ liệu chưa được cài đặt"
+        text: "Dữ liệu chưa được cài đặt.\nVui lòng tạo file \"list.csv\", và lưu trong thư mục cài đặt phần mềm."
+        onAccepted: {
+            Qt.quit()
+        }
+    }
+
     Image {
         id: background_image
         anchors.fill: parent
@@ -120,8 +153,12 @@ Window {
         }
         onToggled: {
             if(checked) {
-                picking_player = playerManager.randomPrize(0)
-
+                if(playerManager.isEmpty()){
+                    messageDialogNoMoreMember.open()
+                    checked = false
+                    return
+                }
+                picking_player = playerManager.randomPrize()
                 timer_ten.start()
                 timer_hundred.start()
                 timer_thousand.start()
@@ -141,24 +178,27 @@ Window {
                 timer_thousand.stop()
 
                 timer_stop_ten.stop()
-                tumbler.setCurrentIndexAt(2, 0, 0)
                 tumbler.setCurrentIndexAt(2, timer_stop_ten.target_index, 2500)
 
                 timer_stop_hundred.stop()
                 timer_stop_hundred.repeat_count = 0
                 timer_stop_hundred.interval = 5000
-                tumbler.setCurrentIndexAt(1, 0, 0)
                 tumbler.setCurrentIndexAt(1, timer_stop_hundred.target_index, 2500)
 
                 timer_stop_thousand.stop()
                 timer_stop_thousand.repeat_count = 0
                 timer_stop_thousand.interval = 6000
-                tumbler.setCurrentIndexAt(0, 0, 0)
                 tumbler.setCurrentIndexAt(0, timer_stop_thousand.target_index, 2500)
 
                 timer_stop_all.start();
             }
         }
+    }
+
+    MessageDialog {
+        id: messageDialogNoMoreMember
+        title: "Notice"
+        text: "There is no remaining member to pick!"
     }
 
     TableView {
@@ -204,7 +244,7 @@ Window {
 
     Timer{
         id: timer_thousand
-        interval: 100
+        interval: 105
         running: true
         repeat: true
         onTriggered: {
@@ -243,7 +283,6 @@ Window {
         property int target_index: 1
         onTriggered: {
             timer_ten.stop()
-            tumbler.setCurrentIndexAt(2, 0, 0)
             tumbler.setCurrentIndexAt(2, target_index, 3000)
         }
     }
@@ -258,7 +297,6 @@ Window {
         onTriggered: {
             if(repeat_count === 0) {
                 timer_hundred.stop()
-                tumbler.setCurrentIndexAt(1, 0, 0)
                 interval = timer_hundred.interval
                 btn_pick.enabled = false
             }
@@ -288,7 +326,6 @@ Window {
         onTriggered: {
             if(repeat_count === 0) {
                 timer_thousand.stop()
-                tumbler.setCurrentIndexAt(0, 0, 0)
                 interval = timer_thousand.interval
             }
             interval += 300
